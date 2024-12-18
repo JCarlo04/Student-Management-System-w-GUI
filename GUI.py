@@ -71,22 +71,40 @@ def search_stud():
 def add_stud():
     for widget in dynamic_frame.winfo_children():
         widget.destroy()
+        
+    def clear_error_label(event, error_label):
+        error_label.config(text="")
 
     def perform_add():
-        name = name_entry.get()
-        age = age_entry.get()
-        idnum = id_entry.get()
-        email = email_entry.get()
-        phone = phone_entry.get()
+        name = name_entry.get().strip()
+        age = age_entry.get().strip()
+        idnum = id_entry.get().strip()
+        email = email_entry.get().strip()
+        phone = phone_entry.get().strip()
 
-        if not (name and age and idnum and email and phone):
-            Label(dynamic_frame, text="Please fill all fields!", font=(font_family, 18), fg="red", bg=bg_color).pack()
+        errors = False 
+
+        if not name:
+            name_error.config(text="Name is required!")
+            errors = True
+        if not age:
+            age_error.config(text="Age is required!")
+            errors = True
+        if not idnum:
+            id_error.config(text="ID Number is required!")
+            errors = True
+        if not email:
+            email_error.config(text="Email is required!")
+            errors = True
+        if not phone:
+            phone_error.config(text="Phone is required!")
+            errors = True
+
+        if errors:
             return
 
-        # Add the student to the file
         add_student(None, name, age, idnum, email, phone)
 
-        # Dynamically add the student to the list
         new_student = StudentInfo()
         new_student.setFirstName(name)
         new_student.setAge(age)
@@ -101,14 +119,29 @@ def add_stud():
 
     fields = ["Name", "Age", "ID Number", "Email", "Phone"]
     entries = []
+    error_labels = []
+
     for field in fields:
         Label(dynamic_frame, text=field, font=(font_family, 18), fg=font_color, bg=bg_color).pack()
         entry = Entry(dynamic_frame, font=(font_family, 18))
         entry.pack()
         entries.append(entry)
 
+        error_label = Label(dynamic_frame, text="", font=(font_family, 14), fg="red", bg=bg_color)
+        error_label.pack()
+        error_labels.append(error_label)
+
     name_entry, age_entry, id_entry, email_entry, phone_entry = entries
+    name_error, age_error, id_error, email_error, phone_error = error_labels
+
+    name_entry.bind("<Key>", lambda event: clear_error_label(event, name_error))
+    age_entry.bind("<Key>", lambda event: clear_error_label(event, age_error))
+    id_entry.bind("<Key>", lambda event: clear_error_label(event, id_error))
+    email_entry.bind("<Key>", lambda event: clear_error_label(event, email_error))
+    phone_entry.bind("<Key>", lambda event: clear_error_label(event, phone_error))
+
     Button(dynamic_frame, text="Add", font=(font_family, 18), bg=button_color, fg="white", command=perform_add).pack(pady=10)
+
 
 def print_all():
     for widget in dynamic_frame.winfo_children():
@@ -119,7 +152,7 @@ def print_all():
     scroll_text.pack(fill="both", expand=True)
 
     scroll_text.config(state=NORMAL)
-    scroll_text.delete("1.0", END)  # Clear existing content
+    scroll_text.delete("1.0", END)
     for student in stu.allstudents:
         scroll_text.insert(END, f"{str(student)}\n")
     scroll_text.config(state=DISABLED)
@@ -129,7 +162,6 @@ def login():
     with open("studentlist.txt", "r") as f:
         students = f.readlines()
             
-    # Ensure only valid lines with at least 3 fields are considered
     ids = [line.strip().split(",")[2] for line in students if len(line.strip().split(",")) >= 3]
         
     if entered_id in ids:
@@ -138,7 +170,7 @@ def login():
         float_frame.pack(side="left", fill="both", expand=True)
         for line in students:
             details = line.strip().split(",")
-            if len(details) >= 5 and details[2] == entered_id:  # Validate line format and match ID
+            if len(details) >= 5 and details[2] == entered_id:
                 stu.setFirstName(details[0])
                 stu.setAge(details[1])
                 stu.setIDNum(details[2])
