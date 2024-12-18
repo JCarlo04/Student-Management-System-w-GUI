@@ -41,12 +41,11 @@ class StudentInfo:
         return f"Name: {self.name}\nAge: {self.age}\nID Number: {self.idnum}\nEmail: {self.email}\nPhone Number: {self.phone}"
     
     def read(self):
-        """Reads all students from the file and initializes the `allstudents` list."""
-        self.allstudents = []  # Clear the list to avoid duplication
+        self.allstudents = []
         with open("studentlist.txt", "r") as f:
             for line in f:
                 line_strip = line.strip().split(",")
-                if len(line_strip) == 5:  # Ensure the line has exactly 5 fields
+                if len(line_strip) == 5:
                     student = StudentInfo()
                     student.setFirstName(line_strip[0])
                     student.setAge(line_strip[1])
